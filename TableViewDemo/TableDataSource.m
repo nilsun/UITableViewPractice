@@ -29,38 +29,31 @@
 
 - (void)initCellDatas
 {
-    SliderCellData *cellData;
+    CellData *cellData;
     NSMutableArray *sectionOne = [[NSMutableArray alloc] init];
-//    NSMutableArray *sectionTwo = [[NSMutableArray alloc] init];
-//    NSMutableArray *sectionThree = [[NSMutableArray alloc] init];
+    NSMutableArray *sectionTwo = [[NSMutableArray alloc] init];
+    NSMutableArray *sectionThree = [[NSMutableArray alloc] init];
 
-    //construct section one datasource
-    cellData = [[SliderCellData alloc] initWithCellType:kTableViewSliderCell];
-    [sectionOne addObject:cellData];
-    cellData = [[SliderCellData alloc] initWithCellType:kTableViewSliderCell];
-    [sectionOne addObject:cellData];
-    cellData = [[SliderCellData alloc] initWithCellType:kTableViewSliderCell];
+    //construct section one data
+    cellData = [[PlainTextCellData alloc] initWithCellType:kTableViewPlainTextCell withPlainText:@"click to see more"];
     [sectionOne addObject:cellData];
     [_cellDatas addObject:sectionOne];
 
-    //construct section two datasource
-//    cellDataSource = [[CellDataSource alloc] initWithTitle:@"1-1" isSelected:NO isSwitchOn:YES];
-//    [sectionTwo addObject:cellDataSource];
-//    cellDataSource = [[CellDataSource alloc] initWithTitle:@"1-2" isSelected:NO isSwitchOn:NO];
-//    [sectionTwo addObject:cellDataSource];
-//    cellDataSource = [[CellDataSource alloc] initWithTitle:@"1-3" isSelected:NO isSwitchOn:YES];
-//    [sectionTwo addObject:cellDataSource];
-//    cellDataSource = [[CellDataSource alloc] initWithTitle:@"1-4" isSelected:NO isSwitchOn:NO];
-//    [sectionTwo addObject:cellDataSource];
-//    [_cellDataSources addObject:sectionTwo];
-//    
-//    cellDataSource = [[CellDataSource alloc] initWithTitle:@"2-1" isSelected:NO isSwitchOn:YES];
-//    [sectionThree addObject:cellDataSource];
-//    cellDataSource = [[CellDataSource alloc] initWithTitle:@"2-2" isSelected:NO isSwitchOn:NO];
-//    [sectionThree addObject:cellDataSource];
-//    cellDataSource = [[CellDataSource alloc] initWithTitle:@"2-3" isSelected:NO isSwitchOn:YES];
-//    [sectionThree addObject:cellDataSource];
-//    [_cellDataSources addObject:sectionThree];
+    //construct section two data
+    cellData = [[SliderCellData alloc] initWithCellType:kTableViewSliderCell withSliderValue:0];
+    [sectionTwo addObject:cellData];
+    cellData = [[SliderCellData alloc] initWithCellType:kTableViewSliderCell withSliderValue:50];
+    [sectionTwo addObject:cellData];
+    cellData = [[SliderCellData alloc] initWithCellType:kTableViewSliderCell withSliderValue:100];
+    [sectionTwo addObject:cellData];
+    [_cellDatas addObject:sectionTwo];
+    
+    //construct section three data
+    cellData = [[SwitchCellData alloc] initWithCellType:kTableViewSwitchCell withSwitchOn:YES];
+    [sectionThree addObject:cellData];
+    cellData = [[SwitchCellData alloc] initWithCellType:kTableViewSwitchCell withSwitchOn:NO];
+    [sectionThree addObject:cellData];
+    [_cellDatas addObject:sectionThree];
 }
 
 - (NSInteger)sectionCount

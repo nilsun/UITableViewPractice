@@ -25,10 +25,23 @@ typedef NS_ENUM(NSInteger, TableViewCellType)
 
 
 @interface SliderCellData : CellData
+- (id)initWithCellType:(TableViewCellType)cellType withSliderValue:(float)sliderValue;
 
-- (id)initWithCellType:(TableViewCellType)cellType;
+@property (nonatomic, assign) float sliderValue;
 
-@property (nonatomic, strong) NSString *cellTitle;
-@property (nonatomic, assign) BOOL selected;
+- (void)setSliderValueWithNotification:(float)sliderValue;
+@end
+
+
+@interface PlainTextCellData : CellData
+- (id)initWithCellType:(TableViewCellType)cellType withPlainText:(NSString*)textStr;
+
+@property (nonatomic, copy) NSString *cellTextStr;
+@end
+
+
+@interface SwitchCellData : CellData
+- (id)initWithCellType:(TableViewCellType)cellType withSwitchOn:(BOOL)switchOn;
+
 @property (nonatomic, assign) BOOL switchOn;
 @end

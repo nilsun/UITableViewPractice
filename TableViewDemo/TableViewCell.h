@@ -23,5 +23,11 @@
 @end
 
 
+@interface TableViewPlainTextCell : TableViewCell
+@end
+
 @interface TableViewSliderCell : TableViewCell
+@end
+
+@interface TableViewSwitchCell : TableViewCell
 @end
