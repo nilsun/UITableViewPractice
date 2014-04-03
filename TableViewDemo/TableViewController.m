@@ -51,8 +51,9 @@
 {
     _tableDataSource = [[TableDataSource alloc] init];
     
-    CellData *cellData;
+    //Actuallly, you can abstract a class CellDataUI if you have your own data class.
     //construct section one data
+    CellData *cellData;
     cellData = [[PlainTextCellData alloc] initWithCellType:kTableViewPlainTextCell withPlainText:@"click to see more"];
     cellData.target = self;
     cellData.action = @selector(onPlainTextCellPressed:withCellData:);
