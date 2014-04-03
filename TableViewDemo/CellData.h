@@ -19,6 +19,9 @@ typedef NS_ENUM(NSInteger, TableViewCellType)
 @interface CellData : NSObject
 - (id)initWithCellType:(TableViewCellType)cellType;
 
+@property (nonatomic, assign) id target;
+@property (nonatomic, assign) SEL action;
+
 @property (nonatomic, assign) TableViewCellType cellType;
 @property (nonatomic, copy) NSString *cellResueIdentifier;
 @end

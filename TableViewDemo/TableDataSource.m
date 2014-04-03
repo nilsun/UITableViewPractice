@@ -22,38 +22,23 @@
     if (self = [super init])
     {
         _cellDatas = [[NSMutableArray alloc] init];
-        [self initCellDatas];
+//        [self initCellDatas];
     }
     return self;
 }
 
-- (void)initCellDatas
+- (void)addData:(CellData*)cellData forSection:(NSInteger)section
 {
-    CellData *cellData;
-    NSMutableArray *sectionOne = [[NSMutableArray alloc] init];
-    NSMutableArray *sectionTwo = [[NSMutableArray alloc] init];
-    NSMutableArray *sectionThree = [[NSMutableArray alloc] init];
+    int maxSection = [self sectionCount] - 1;
 
-    //construct section one data
-    cellData = [[PlainTextCellData alloc] initWithCellType:kTableViewPlainTextCell withPlainText:@"click to see more"];
-    [sectionOne addObject:cellData];
-    [_cellDatas addObject:sectionOne];
-
-    //construct section two data
-    cellData = [[SliderCellData alloc] initWithCellType:kTableViewSliderCell withSliderValue:0];
-    [sectionTwo addObject:cellData];
-    cellData = [[SliderCellData alloc] initWithCellType:kTableViewSliderCell withSliderValue:50];
-    [sectionTwo addObject:cellData];
-    cellData = [[SliderCellData alloc] initWithCellType:kTableViewSliderCell withSliderValue:100];
-    [sectionTwo addObject:cellData];
-    [_cellDatas addObject:sectionTwo];
-    
-    //construct section three data
-    cellData = [[SwitchCellData alloc] initWithCellType:kTableViewSwitchCell withSwitchOn:YES];
-    [sectionThree addObject:cellData];
-    cellData = [[SwitchCellData alloc] initWithCellType:kTableViewSwitchCell withSwitchOn:NO];
-    [sectionThree addObject:cellData];
-    [_cellDatas addObject:sectionThree];
+    if (maxSection < section)
+    {
+        for (int i = 0; i < section - maxSection; i++)
+        {
+            [_cellDatas addObject:[[NSMutableArray alloc] init]];
+        }
+    }
+    [(NSMutableArray*)[_cellDatas objectAtIndex:section] addObject:cellData];
 }
 
 - (NSInteger)sectionCount

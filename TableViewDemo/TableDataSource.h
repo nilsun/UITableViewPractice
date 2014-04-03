@@ -16,10 +16,8 @@
 - (NSInteger)sectionCount;
 - (NSInteger)rowCountInSection:(NSInteger)section;
 - (CellData *)cellDataAtIndexPath:(NSIndexPath*)indexPath;
-
+- (void)addData:(CellData*)cellData forSection:(NSInteger)section;
 @end
-
-
 
 @interface TableDataSource : NSObject <TableViewDataSourceDelegate>
 @end

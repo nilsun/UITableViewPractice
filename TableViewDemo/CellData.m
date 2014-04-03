@@ -55,28 +55,6 @@
     _sliderValue = sliderValue;
 }
 
-
-
-//- (id)initWithTitle:(NSString*)cellTitle isSelected:(BOOL)selected isSwitchOn:(BOOL)switchOn
-//{
-//    if (self = [super init])
-//    {
-//        _cellTitle = cellTitle;
-//        _selected = selected;
-//        _switchOn = switchOn;
-//    }
-//    return self;
-//}
-//
-//- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
-//{
-//    if ([keyPath isEqualToString:@"on"])
-//    {
-//        BOOL switchOn = [[change objectForKey:NSKeyValueChangeNewKey] boolValue];
-//        self.switchOn = switchOn;
-//    }
-//}
-
 @end
 
 #pragma mark - PlainTextCellData

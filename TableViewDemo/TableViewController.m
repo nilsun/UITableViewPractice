@@ -12,19 +12,21 @@
 #import "CellData.h"
 
 @interface UITableView (TouchToDismissKeyboard)
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event;
 @end
 
 @implementation UITableView (TouchToDismissKeyboard)
 
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
 {
-    [super touchesBegan:touches withEvent:event];
-    [self endEditing:YES];
+    UIView *hitView = [super hitTest:point withEvent:event];
+    if ([hitView isKindOfClass:NSClassFromString(@"UITableViewWrapperView")])
+    {
+        [self endEditing:YES];
+    }
+    return hitView;
 }
 
 @end
-
 
 @interface TableViewController ()
 {
@@ -40,17 +42,48 @@
     if (self)
     {
        self.title = @"UITableView Practice";
-        _tableDataSource = [[TableDataSource alloc] init];
+        [self initTableDataSource];
     }
     return self;
 }
 
-- (void)viewDidLoad
+- (void)initTableDataSource
 {
-    [super viewDidLoad];
+    _tableDataSource = [[TableDataSource alloc] init];
+    
+    CellData *cellData;
+    //construct section one data
+    cellData = [[PlainTextCellData alloc] initWithCellType:kTableViewPlainTextCell withPlainText:@"click to see more"];
+    cellData.target = self;
+    cellData.action = @selector(onPlainTextCellPressed:withCellData:);
+    [_tableDataSource addData:cellData forSection:0];
+    
+    //construct section two data
+    cellData = [[SliderCellData alloc] initWithCellType:kTableViewSliderCell withSliderValue:0];
+    cellData.target = self;
+    cellData.action = @selector(onSliderCellPressed:andGoMaxWithCellData:);
+    [_tableDataSource addData:cellData forSection:1];
+    cellData = [[SliderCellData alloc] initWithCellType:kTableViewSliderCell withSliderValue:50];
+    cellData.target = self;
+    cellData.action = @selector(onSliderCellPressed:andGoMinWithCellData:);
+    [_tableDataSource addData:cellData forSection:1];
+    cellData = [[SliderCellData alloc] initWithCellType:kTableViewSliderCell withSliderValue:100];
+    cellData.target = self;
+    cellData.action = @selector(onSliderCellPressed:andGoHalfWithCellData:);
+    [_tableDataSource addData:cellData forSection:1];
+    
+    //construct section three data
+    cellData = [[SwitchCellData alloc] initWithCellType:kTableViewSwitchCell withSwitchOn:YES];
+    cellData.target = self;
+    cellData.action = @selector(onSwitchCellPressed:withCellData:);
+    [_tableDataSource addData:cellData forSection:2];
+    cellData = [[SwitchCellData alloc] initWithCellType:kTableViewSwitchCell withSwitchOn:NO];
+    cellData.target = self;
+    cellData.action = @selector(onSwitchCellPressed:withCellData:);
+    [_tableDataSource addData:cellData forSection:2];
 }
 
-#pragma mark - Table view data source
+#pragma mark - TableView DataSource
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
@@ -77,58 +110,50 @@
     return cell;
 }
 
-#pragma mark - Table view delegate
+#pragma mark - TableView Delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
-//    SliderCellData *cellDataSource = [_tableDataSource cellDataAtIndexPath:indexPath];
-//    cellDataSource.selected = YES;
-//    cellDataSource.switchOn = NO;
+    CellData *cellData = [_tableDataSource cellDataAtIndexPath:indexPath];
+    UITableViewCell *selectedCell = [tableView cellForRowAtIndexPath:indexPath];
+
+    if (cellData.target && cellData.action)
+    {
+        if ([cellData.target respondsToSelector:cellData.action])
+        {
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+            [cellData.target performSelector:cellData.action withObject:selectedCell withObject:cellData];
+        }
+    }
 }
 
+#pragma mark - Action
 
-
-
-
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+- (void)onPlainTextCellPressed:(TableViewPlainTextCell*)tableViewCell withCellData:(PlainTextCellData*)cellData
 {
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
+    cellData.cellTextStr = @"cell clicked";
 }
-*/
 
-/*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+- (void)onSliderCellPressed:(TableViewSliderCell*)tableViewCell andGoMinWithCellData:(SliderCellData*)cellData
 {
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    }   
-    else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
+    cellData.sliderValue = 0.0f;
 }
-*/
 
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
+- (void)onSliderCellPressed:(TableViewSliderCell*)tableViewCell andGoHalfWithCellData:(SliderCellData*)cellData
 {
+    cellData.sliderValue = 50.0f;
 }
-*/
 
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
+- (void)onSliderCellPressed:(TableViewSliderCell*)tableViewCell andGoMaxWithCellData:(SliderCellData*)cellData
 {
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
+    cellData.sliderValue = 100.0f;
 }
-*/
+
+- (void)onSwitchCellPressed:(TableViewSwitchCell*)tableViewCell withCellData:(SwitchCellData*)cellData
+{
+    cellData.switchOn = !cellData.switchOn;
+}
 
 @end

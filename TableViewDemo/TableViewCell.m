@@ -30,7 +30,6 @@
     return nil;
 }
 
-
 - (void)setCellData:(CellData*)cellData
 {
     _cellData = cellData;
@@ -61,10 +60,35 @@
     return self;
 }
 
+- (void)dealloc
+{
+    [_cellData removeObserver:self forKeyPath:@"cellTextStr"];
+}
+
 - (void)setCellData:(PlainTextCellData*)cellData
 {
     [super setCellData:cellData];
     _cellTextLabel.text = cellData.cellTextStr;
+    
+    [self createObserveRelationWithCellData:cellData];
+}
+
+- (void)createObserveRelationWithCellData:(CellData*)cellData
+{
+    //KVO
+    [cellData addObserver:self
+               forKeyPath:@"cellTextStr"
+                  options:NSKeyValueObservingOptionNew
+                  context:nil];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if ([keyPath isEqualToString:@"cellTextStr"])
+    {
+        NSString *modelValue = [change objectForKey:NSKeyValueChangeNewKey];
+        _cellTextLabel.text = modelValue;
+    }
 }
 
 @end
@@ -94,6 +118,11 @@
         _sliderValueTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 2, 50, 40)];
         _sliderValueTextField.textAlignment = NSTextAlignmentRight;
         _sliderValueTextField.delegate = self;
+        _sliderValueTextField.returnKeyType = UIReturnKeyDone;
+        [_sliderValueTextField addTarget:self
+                                  action:@selector(textFieldFinished:)
+                        forControlEvents:UIControlEventEditingDidEndOnExit];
+
         self.accessoryView = _sliderValueTextField;
     }
     return self;
@@ -102,6 +131,11 @@
 - (void)dealloc
 {
     [_cellData removeObserver:self forKeyPath:@"sliderValue"];
+}
+
+- (void)textFieldFinished:(id)sender
+{
+    [sender resignFirstResponder];
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField
@@ -146,7 +180,7 @@
                   context:nil];
 
     //Initially I try to use Cocoa binding here, but key value changed notification is only sent once when you first slide.
-    //UIKit doesn't actively support KVO, for efficiency consideration, I guess.
+    //The reason is that UIKit doesn't actively support KVO. For efficiency consideration, I guess.
     //So I have to get continuous events through the UISlider's associated target's action method.
     //For more infomation: http://stackoverflow.com/questions/1482527/observing-a-uisliders-value-iphone-kvo
     
