@@ -26,7 +26,7 @@
 @interface TableViewPlainTextCell : TableViewCell
 @end
 
-@interface TableViewSliderCell : TableViewCell
+@interface TableViewSliderCell : TableViewCell <UITextFieldDelegate>
 @end
 
 @interface TableViewSwitchCell : TableViewCell

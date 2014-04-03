@@ -10,6 +10,22 @@
 #import "TableDataSource.h"
 #import "TableViewCell.h"
 #import "CellData.h"
+
+@interface UITableView (TouchToDismissKeyboard)
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event;
+@end
+
+@implementation UITableView (TouchToDismissKeyboard)
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    [super touchesBegan:touches withEvent:event];
+    [self endEditing:YES];
+}
+
+@end
+
+
 @interface TableViewController ()
 {
     id <TableViewDataSourceDelegate> _tableDataSource;
@@ -71,6 +87,8 @@
 //    cellDataSource.selected = YES;
 //    cellDataSource.switchOn = NO;
 }
+
+
 
 
 

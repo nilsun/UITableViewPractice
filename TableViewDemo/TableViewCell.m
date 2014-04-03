@@ -88,10 +88,12 @@
         _slider = [[UISlider alloc] initWithFrame:CGRectMake(100, 2, 150, 40)];
         [_slider setMaximumValue:100.0f];
         [_slider setMinimumValue:0.0f];
+        [_slider addTarget:self action:@selector(onSliderSlided:) forControlEvents:UIControlEventValueChanged];
         [self addSubview:_slider];
         
         _sliderValueTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 2, 50, 40)];
         _sliderValueTextField.textAlignment = NSTextAlignmentRight;
+        _sliderValueTextField.delegate = self;
         self.accessoryView = _sliderValueTextField;
     }
     return self;
@@ -99,8 +101,31 @@
 
 - (void)dealloc
 {
-    [_cellData removeObserver:self forKeyPath:@"selected"];
-    [_cellData removeObserver:self forKeyPath:@"switchOn"];
+    [_cellData removeObserver:self forKeyPath:@"sliderValue"];
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField
+{
+    int inputValue = [textField.text intValue];
+    inputValue = inputValue > 100 ? 100 : inputValue;
+    inputValue = inputValue < 0 ? 0 : inputValue;
+    [self setCellDataSilderValue:inputValue];
+}
+
+- (void)onSliderSlided:(id)sender
+{
+    UISlider *slider = (UISlider*)sender;
+    [self setCellDataSilderValue:slider.value];
+}
+
+- (void)setTextFieldTextWithSliderValue:(float)sliderValue
+{
+    _sliderValueTextField.text = [NSString stringWithFormat:@"%d", (int)sliderValue];
+}
+
+- (void)setCellDataSilderValue:(float)sliderValue
+{
+    [(SliderCellData*)_cellData setSliderValue:sliderValue];
 }
 
 - (void)setCellData:(SliderCellData*)cellData
@@ -108,51 +133,22 @@
     [super setCellData:cellData];
     _slider.value = cellData.sliderValue;
     [self setTextFieldTextWithSliderValue:cellData.sliderValue];
-    
+
     [self createObserveRelationWithCellData:cellData];
-//    _cellData = cellData;
-//    self.textLabel.text = _cellDataSource.cellTitle;
-//    [self.imageView setImage:_cellDataSource.selected ? nil : [UIImage imageNamed:@"icon_status_unread"]];
-//    [_switch setOn:_cellData.switchOn animated:YES];
-    
-//    [self observeCellData:cellData];
-//    [_switch addTarget:self action:@selector(onSwitchValueChanged:) forControlEvents:UIControlEventTouchUpInside];
 }
 
-//- (void)onSwitchValueChanged:(id)sender
-//{
-//    _cellData.switchOn = [(UISwitch*)sender isOn];
-//}
-
-- (void)setTextFieldTextWithSliderValue:(float)sliderValue
+- (void)createObserveRelationWithCellData:(CellData*)cellData
 {
-    _sliderValueTextField.text = [NSString stringWithFormat:@"%d", (int)sliderValue];
-}
-
-- (void)createObserveRelationWithCellData:(SliderCellData*)cellData
-{
-    //KVO
-//    [cellData addObserver:self
-//               forKeyPath:@"selected"
-//                  options:NSKeyValueObservingOptionNew
-//                  context:nil];
-    
-    //Cocoa Binding: mutual observing
-//    [cellData addObserver:self
-//               forKeyPath:@"switchOn"
-//                  options:NSKeyValueObservingOptionNew
-//                  context:nil];
-    
-//    [_switch addObserver:cellDataSource
-//              forKeyPath:@"on"
-//                 options:NSKeyValueObservingOptionNew
-//                 context:nil];
-    
     //Cocoa Binding: mutual observing
     [cellData addObserver:self
                forKeyPath:@"sliderValue"
                   options:NSKeyValueObservingOptionNew
                   context:nil];
+
+    //Initially I try to use Cocoa binding here, but key value changed notification is only sent once when you first slide.
+    //UIKit doesn't actively support KVO, for efficiency consideration, I guess.
+    //So I have to get continuous events through the UISlider's associated target's action method.
+    //For more infomation: http://stackoverflow.com/questions/1482527/observing-a-uisliders-value-iphone-kvo
     
 //    [_slider addObserver:self
 //              forKeyPath:@"value"
@@ -167,16 +163,16 @@
     {
         float modelValue = [[change objectForKey:NSKeyValueChangeNewKey] floatValue];
         _slider.value = modelValue;
+        [self setTextFieldTextWithSliderValue:modelValue];
     }
     
     //slider UI mannually changed
-    if ([keyPath isEqualToString:@"value"])
-    {
-        NSLog(@"ddfdfd");
-        float sliderValue = [[change objectForKey:NSKeyValueChangeNewKey] floatValue];
-        [(SliderCellData*)_cellData setSliderValueWithNotification:sliderValue];
-        [self setTextFieldTextWithSliderValue:sliderValue];
-    }
+//    if ([keyPath isEqualToString:@"value"])
+//    {
+//        float sliderValue = [[change objectForKey:NSKeyValueChangeNewKey] floatValue];
+//        [(SliderCellData*)_cellData setSliderValueWithNotification:sliderValue];
+//        [self setTextFieldTextWithSliderValue:sliderValue];
+//    }
 }
 
 @end
@@ -197,15 +193,46 @@
     if (self)
     {
         _switch = [[UISwitch alloc] init];
+        [_switch addTarget:self action:@selector(onSwitchValueChanged:) forControlEvents:UIControlEventTouchUpInside];
         self.accessoryView = _switch;
     }
     return self;
+}
+
+- (void)dealloc
+{
+    [_cellData removeObserver:self forKeyPath:@"switchOn"];
+}
+
+- (void)onSwitchValueChanged:(id)sender
+{
+    [(SwitchCellData*)_cellData setSwitchOn:[(UISwitch*)sender isOn]];
 }
 
 - (void)setCellData:(SwitchCellData*)cellData
 {
     [super setCellData:cellData];
     [_switch setOn:cellData.switchOn];
+    
+    [self createObserveRelationWithCellData:cellData];
+}
+
+- (void)createObserveRelationWithCellData:(CellData*)cellData
+{
+    //KVO
+    [cellData addObserver:self
+               forKeyPath:@"switchOn"
+                  options:NSKeyValueObservingOptionNew
+                  context:nil];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if ([keyPath isEqualToString:@"switchOn"])
+    {
+        float modelValue = [[change objectForKey:NSKeyValueChangeNewKey] floatValue];
+        [_switch setOn:modelValue];
+    }
 }
 
 @end
